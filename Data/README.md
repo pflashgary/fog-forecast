@@ -3,7 +3,7 @@
 - To get your API key go to https://cds.climate.copernicus.eu/api-how-to
 - Browse into the product you want, you can either use the UI and select `Show API request`. There is a trick as it doesn't let you copy the script and you don't want to type it. Ctrl+U and search for "copy not ok" and remove it from the source. This step is only required if we need to download more variables.
 
-# Install eccodes; More details [here](https://confluence.ecmwf.int/display/ECC/ecCodes+installation):
+# Install eccodes and other python packages; More details [here](https://confluence.ecmwf.int/display/ECC/ecCodes+installation):
 1. Get the latest version from https://confluence.ecmwf.int/display/ECC
 2. Run this on your terminal
 
