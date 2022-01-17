@@ -104,5 +104,5 @@ for variable in variables:
                 "area": [-33, 165, -48, 180,],
                 "pressure_level": "1",
             },
-            "pressure-1.grib",
+            f"gribs/{variable}-{year}-pressure-1.grib",
         )
