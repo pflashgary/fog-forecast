@@ -5,7 +5,7 @@ from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 import numpy as np
 import cartopy
 
-path = "/home/pegah/ideas-packages/fog-forecast/"  # Change this to where your data is stored
+path = "gribs/"  # Change this to where your data is stored
 year = "2022"
 variable = "10m_u_component_of_wind"
 fname = f"{variable}-{year}-single.grib"

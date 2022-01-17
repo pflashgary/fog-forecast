@@ -112,5 +112,5 @@ for variable in variables:
                 ],
                 "area": [-33, 165, -48, 180,],
             },
-            f"{variable}-{year}-single.grib",
+            f"gribs/{variable}-{year}-single.grib",
         )
