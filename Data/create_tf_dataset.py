@@ -5,9 +5,9 @@ import tempfile
 import numpy as np
 import argparse
 import logging
-import subprocess
 import apache_beam as beam
 import sys
+import shutil
 from datetime import datetime, timedelta
 from NAM import VARIABLES
 
@@ -41,8 +41,10 @@ def generate_filenames_variables(basetime: str, prog: int, vars):
         logging.info(
             "Hourly records from basetime: {} and prognosis: {} ".format(dt, prog)
         )
-        # gribs/nam_218_20200601_0000_000_TMP_2_m_above_ground.grib2
-        f = "gribs/nam_218_{}_{:04d}_{:03d}_{}.gri2".format(no_hour, dt.hour, prog, var)
+        # NAM/gribs/nam_218_20200601_0000_000_TMP_2_m_above_ground.grib2
+        f = "NAM/gribs/nam_218_{}_{:04d}_{:03d}_{}.gri2".format(
+            no_hour, dt.hour, prog, var
+        )
         yield f
 
 
@@ -82,7 +84,7 @@ def create_tfrecord(basetime_prog: tuple, vars: list):
     basetime = basetime_prog[0]
     prog = basetime_prog[-1]
     filenames = generate_filenames_variables(basetime, prog, vars)
-    channels = len(filenames)
+    channels = len(vars)
     try:
         feature = {}
         for filename in filenames:
@@ -96,7 +98,6 @@ def create_tfrecord(basetime_prog: tuple, vars: list):
                 for variable in variables:
                     data_var = ds.data_vars[variable]
                     feature.update({variable: _array_feature(data_var.data)})
-
                     size = np.array(
                         [
                             ds.data_vars[variable].sizes["y"],
@@ -106,7 +107,6 @@ def create_tfrecord(basetime_prog: tuple, vars: list):
                     )
                     basetime = _string_feature(str(data_var.time.data))
                     validtime = _string_feature(str(data_var.valid_time.data))
-
                 feature.update(
                     {
                         "size": tf.train.Feature(
@@ -116,12 +116,9 @@ def create_tfrecord(basetime_prog: tuple, vars: list):
                         "validtime": validtime,
                     }
                 )
-
         # create a TF Record with the raw data
         tfexample = tf.train.Example(features=tf.train.Features(feature=feature))
-
         yield tfexample.SerializeToString()
-
     except:
         e = sys.exc_info()[0]
         logging.error(e)
@@ -146,7 +143,6 @@ def run_job(options):
             | "create_tfr"
             >> beam.FlatMap(lambda x: create_tfrecord(x, options["variables"]))
         )
-
         # write out tfrecords
         _ = examples | "write_tfr" >> beam.io.tfrecordio.WriteToTFRecord(
             os.path.join(options["outdir"], "tfrecord")
@@ -155,6 +151,10 @@ def run_job(options):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create TF Records from NAM files")
+
+    parser.add_argument(
+        "--project", default="", help="Specify AWS project to run on cloud"
+    )
 
     parser.add_argument(
         "--outdir", required=True, help="output dir. could be local or on AWS"
@@ -177,9 +177,12 @@ if __name__ == "__main__":
     options["variables"] = VARIABLES
     outdir = options["outdir"]
 
-    try:
-        subprocess.check_call("gsutil -m rm -r {}".format(outdir).split())
-    except:  # pylint: disable=bare-except
+    if not options["project"]:
+        print("Launching local job ... hang on")
+        shutil.rmtree(outdir, ignore_errors=True)
+        os.makedirs(outdir)
+        options["runner"] = "DirectRunner"
+    else:
         pass
 
     run_job(options)
