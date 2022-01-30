@@ -23,6 +23,6 @@ sudo apt-get install libgeos-dev
 
 4. Install python dependencies
 ```bash
-conda create -n fog -c conda-forge python=3.9 cartopy eccodes cfgrib xarray[complete] apache_beam
+conda create -n fog -c conda-forge python=3.9 cartopy eccodes cfgrib xarray[complete] apache_beam sklearn seaborn
 conda activate fog
 ```
