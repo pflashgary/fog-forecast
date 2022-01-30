@@ -1,5 +1,5 @@
 from tensorflow import keras
-from model import make_model
+from model import fognet_ntiers
 from stack import stack_6tier
 from target import labels, assign_weights
 from plot import plot_loss, plot_metrics, plot_cm, plot_roc, plot_prc
@@ -28,7 +28,7 @@ early_stopping = keras.callbacks.EarlyStopping(
 )
 
 
-model = make_model(training_stack_shape, output_bias=initial_bias)
+model = fognet_ntiers(training_stack_shape, output_bias=initial_bias)
 careful_bias_history = model.fit(
     training_stack,
     training_labels,
@@ -45,7 +45,7 @@ plot_loss(careful_bias_history, "Careful Bias", 1)
 initial_weights = os.path.join(tempfile.mkdtemp(), "initial_weights")
 model.save_weights(initial_weights)
 
-model = make_model(training_stack_shape)
+model = fognet_ntiers(training_stack_shape)
 model.load_weights(initial_weights)
 
 baseline_history = model.fit(
@@ -70,7 +70,7 @@ baseline_results = model.evaluate(
 plot_cm(testing_labels, test_predictions_baseline)
 
 
-weighted_model = make_model()
+weighted_model = fognet_ntiers()
 weighted_model.load_weights(initial_weights)
 
 weighted_history = weighted_model.fit(
