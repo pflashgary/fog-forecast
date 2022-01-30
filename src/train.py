@@ -1,7 +1,7 @@
 from tensorflow import keras
 from model import fognet_ntiers
 from stack import stack_6tier
-from target import labels, assign_weights
+from target import labels, weight_bias
 from plot import plot_loss, plot_metrics, plot_cm, plot_roc, plot_prc
 import os
 import tempfile
@@ -20,7 +20,7 @@ testing_stack_shape, testing_stack = stack_6tier()
 
 training_labels, validating_labels, testing_labels = labels()
 
-class_weight, initial_bias = assign_weights()
+class_weight, initial_bias = weight_bias()
 
 
 early_stopping = keras.callbacks.EarlyStopping(

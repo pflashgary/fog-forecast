@@ -5,7 +5,7 @@ def labels():
     pass
 
 
-def assign_weights(vis):
+def weight_bias(vis):
 
     # Scaling by total/2 helps keep the loss to a similar magnitude.
     # The sum of the weights of all examples stays the same.
