@@ -2,7 +2,6 @@
     "forecast": {
         "url": "https://www.ncei.noaa.gov/data/north-american-mesoscale-model/access/forecast",
         "dirs": [
-            "201905",
             "202006",
             "202007",
             "202008",
