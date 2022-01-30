@@ -160,7 +160,7 @@ if __name__ == "__main__":
         "--outdir", required=True, help="output dir. could be local or on AWS"
     )
 
-    parser.add_argument("--startdate", typ=str, required=True, help="eg 20200915")
+    parser.add_argument("--startdate", type=str, required=True, help="eg 20200915")
     parser.add_argument(
         "--enddate", type=str, required=True, help="eg 20200916 -- this is exclusive"
     )
