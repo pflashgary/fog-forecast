@@ -1,3 +1,4 @@
+# [Methodology](https://github.com/pflashgary/fog-forecast/blob/main/README.md)
 # Install eccodes and other python dependencies; More details [here](https://confluence.ecmwf.int/display/ECC/ecCodes+installation):
 1. Get the latest version from https://confluence.ecmwf.int/display/ECC
 2. Run this on your terminal
