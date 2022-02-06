@@ -23,71 +23,34 @@ METRICS = [
 STACK = {
     "PhG1": os.path.join(
         "/home/pegah/ideas-packages/fog-forecast/Data/NAM/npz/{prog}HOURS/INPUT",
-        "NETCDF_NAM_CUBE" + "_{year}_" + "PhG1" + "_{prog}",
+        "NETCDF_NAM_CUBE" + "_{year}_" + "PhG1" + "_{prog}.npz",
     ),
     "PhG2": os.path.join(
         "/home/pegah/ideas-packages/fog-forecast/Data/NAM/npz/{prog}HOURS/INPUT",
-        "NETCDF_NAM_CUBE" + "_{year}_" + "PhG2" + "_{prog}",
+        "NETCDF_NAM_CUBE" + "_{year}_" + "PhG2" + "_{prog}.npz",
     ),
     "PhG3": os.path.join(
         "/home/pegah/ideas-packages/fog-forecast/Data/NAM/npz/{prog}HOURS/INPUT",
-        "NETCDF_NAM_CUBE" + "_{year}_" + "PhG3" + "_{prog}",
+        "NETCDF_NAM_CUBE" + "_{year}_" + "PhG3" + "_{prog}.npz",
     ),
     "PhG4": os.path.join(
         "/home/pegah/ideas-packages/fog-forecast/Data/NAM/npz/{prog}HOURS/INPUT",
-        "NETCDF_NAM_CUBE" + "_{year}_" + "PhG4" + "_{prog}",
+        "NETCDF_NAM_CUBE" + "_{year}_" + "PhG4" + "_{prog}.npz",
     ),
 }
 
 TARGET = os.path.join(
     "/home/pegah/ideas-packages/fog-forecast/Data/NAM/npz/{prog}HOURS/TARGET",
-    "target" + "{year}_" + "_{prog}",
+    "target" + "{year}_" + "{prog}.csv",
 )
 
 
 YEARS = {
-    "training": [
-        "2009",
-        "2010",
-        "2011",
-        "2012",
-        "2013",
-        "2014",
-        "2015",
-        "2016",
-        "2017",
-        "2018",
-        "2019",
-        "2020",
-    ],
-    "validating": [
-        "2009",
-        "2010",
-        "2011",
-        "2012",
-        "2013",
-        "2014",
-        "2015",
-        "2016",
-        "2017",
-        "2018",
-        "2019",
-        "2020",
-    ],
-    "testing": [
-        "2009",
-        "2010",
-        "2011",
-        "2012",
-        "2013",
-        "2014",
-        "2015",
-        "2016",
-        "2017",
-        "2018",
-        "2019",
-        "2020",
-    ],
+    "training": ["2018"],
+    "validating": ["2019"],
+    "testing": ["2020"],
 }
 
 PROG = 24
+
+PRIORITY_CLASS = 4

@@ -5,44 +5,43 @@ from target import labels, weight_bias
 from plot import plot_loss, plot_metrics, plot_cm, plot_roc, plot_prc
 import os
 import tempfile
-from params import (
-    EPOCHS,
-    BATCH_SIZE,
-    STACK,
-    TARGET,
-    YEARS,
-    PROG,
-)
+from params import EPOCHS, BATCH_SIZE, STACK, TARGET, YEARS, PROG, PRIORITY_CLASS
 import numpy as np
-
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import logging
+
+logger = logging.getLogger("example_logger")
+
 
 mpl.rcParams["figure.figsize"] = (12, 10)
 colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
 
-training_stack_shape, training_stack = stack_ntiers(STACK, YEARS["training"], PROG)
-training_labels = labels(TARGET, YEARS["training"], PROG)
+training_stack_input, training_stack = stack_ntiers(STACK, YEARS["training"], PROG)
+training_labels_cat, training_labels = labels(
+    TARGET, YEARS["training"], PROG, PRIORITY_CLASS
+)
 
-
-validating_stack_shape, validating_stack = stack_ntiers(
+validating_stack_input, validating_stack = stack_ntiers(
     STACK, YEARS["validating"], PROG
 )
-validating_labels = labels(TARGET, YEARS["validating"], PROG)
+validating_labels_cat, validating_labels = labels(
+    TARGET, YEARS["validating"], PROG, PRIORITY_CLASS
+)
 
-testing_stack_shape, testing_stack = stack_ntiers(STACK, YEARS["testing"], PROG)
-testing_labels = labels(TARGET, YEARS["testing"], PROG)
+testing_stack_input, testing_stack = stack_ntiers(STACK, YEARS["testing"], PROG)
+testing_labels_cat, testing_labels = labels(
+    TARGET, YEARS["testing"], PROG, PRIORITY_CLASS
+)
 
-
-class_weight, initial_bias = weight_bias()
-
+class_weight, initial_bias = weight_bias(training_labels.values.astype(np.int))
 
 early_stopping = keras.callbacks.EarlyStopping(
     monitor="val_prc", verbose=1, patience=10, mode="max", restore_best_weights=True
 )
 
 
-model = fognet_ntiers(training_stack_shape, output_bias=initial_bias)
+model = fognet_ntiers(training_stack_input, output_bias=initial_bias)
 careful_bias_history = model.fit(
     training_stack,
     training_labels,

@@ -3,16 +3,23 @@ import pandas as pd
 from tensorflow.keras.utils import to_categorical
 
 
-def labels(target, years, prog):
+def labels(target, years, prog, priority_class):
     frames = []
     for year in years:
         year_data = pd.read_csv(target.format(year=year, prog=prog), header=0, sep=",")
         year_data = year_data["VIS_Cat"]
+
+        year_data[year_data != priority_class] = "Y"
+        year_data[year_data == priority_class] = "N"
+
+        year_data[year_data != "Y"] = 0
+        year_data[year_data == "Y"] = 1
         frames.append(year_data)
+
     targets = pd.concat(frames)
     categorical_targets = to_categorical(targets)
 
-    return categorical_targets
+    return categorical_targets, targets
 
 
 def weight_bias(vis):

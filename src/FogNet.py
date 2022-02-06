@@ -1,4 +1,5 @@
 from tensorflow.keras.models import Model
+from tensorflow.keras import Input
 from tensorflow.keras.layers import concatenate
 from tensorflow.keras.layers import BatchNormalization, Dense, Dropout
 from tensorflow.keras.layers import Conv3D, GlobalAveragePooling3D
@@ -12,16 +13,16 @@ class FogNet:
         self.num_classes = num_classes
         self.filters = filters
         self.dropout = dropout
-        self.input_nam_G1_shape = stack_shape["nam_G1_shape"]  # 32*32*c1
-        self.input_nam_G2_shape = stack_shape["nam_G2_shape"]  # 32*32*c2
-        self.input_nam_G3_shape = stack_shape["nam_G3_shape"]  # 32*32*c3
-        self.input_nam_G4_shape = stack_shape["nam_G4_shape"]  # 32*32*c4
+        self.input_PhG1 = Input(stack_shape["PhG1"])  # 32*32*c1
+        self.input_PhG2 = Input(stack_shape["PhG2"])  # 32*32*c2
+        self.input_PhG3 = Input(stack_shape["PhG3"])  # 32*32*c3
+        self.input_PhG4 = Input(stack_shape["PhG4"])  # 32*32*c4
 
     def BuildModel(self):
         # ===================================Group1 ===========================================
-        NAM_G1_Depth = self.input_nam_G1_shape.shape[3]
+        NAM_G1_Depth = self.input_PhG1.shape[3]
 
-        NAM_G1_Dense = FogNetConfig.SpectralDenseBlock(self.input_nam_G1_shape)
+        NAM_G1_Dense = FogNetConfig.SpectralDenseBlock(self.input_PhG1)
         NAM_Spectral_A_G1 = Conv3D(
             filters=self.filters, kernel_size=(1, 1, NAM_G1_Depth)
         )(
@@ -37,9 +38,9 @@ class FogNet:
         NAM_Spatial_A_G1 = FogNetConfig.SpatialAttentionBlock(NAM_Spatial_G1)
 
         # ===================================Group2 ===========================================
-        NAM_G2_Depth = self.input_nam_G2_shape.shape[3]
+        NAM_G2_Depth = self.input_PhG2.shape[3]
 
-        NAM_G2_Dense = FogNetConfig.SpectralDenseBlock(self.input_nam_G2_shape)
+        NAM_G2_Dense = FogNetConfig.SpectralDenseBlock(self.input_PhG2)
         NAM_Spectral_A_G2 = Conv3D(
             filters=self.filters, kernel_size=(1, 1, NAM_G2_Depth)
         )(NAM_G2_Dense)
@@ -53,9 +54,9 @@ class FogNet:
         NAM_Spatial_A_G2 = FogNetConfig.SpatialAttentionBlock(NAM_Spatial_G2)
 
         # ===================================Group3 ===========================================
-        NAM_G3_Depth = self.input_nam_G3_shape.shape[3]
+        NAM_G3_Depth = self.input_PhG3.shape[3]
 
-        NAM_G3_Dense = FogNetConfig.SpectralDenseBlock(self.input_nam_G3_shape)
+        NAM_G3_Dense = FogNetConfig.SpectralDenseBlock(self.input_PhG3)
         NAM_Spectral_A_G3 = Conv3D(
             filters=self.filters, kernel_size=(1, 1, NAM_G3_Depth)
         )(NAM_G3_Dense)
@@ -69,9 +70,9 @@ class FogNet:
         NAM_Spatial_A_G3 = FogNetConfig.SpatialAttentionBlock(NAM_Spatial_G3)
 
         # ===================================Group4 ===========================================
-        NAM_G4_Depth = self.input_nam_G4_shape.shape[3]
+        NAM_G4_Depth = self.input_PhG4.shape[3]
 
-        NAM_G4_Dense = FogNetConfig.SpectralDenseBlock(self.input_nam_G4_shape)
+        NAM_G4_Dense = FogNetConfig.SpectralDenseBlock(self.input_PhG4)
         NAM_Spectral_A_G4 = Conv3D(
             filters=self.filters, kernel_size=(1, 1, NAM_G4_Depth)
         )(NAM_G4_Dense)
@@ -123,10 +124,10 @@ class FogNet:
         prediction = Dense(units=self.num_classes, activation="softmax")(FinalConcat)
         model = Model(
             inputs=[
-                self.input_nam_G1_shape,
-                self.input_nam_G2_shape,
-                self.input_nam_G3_shape,
-                self.input_nam_G4_shape,
+                self.input_PhG1,
+                self.input_PhG2,
+                self.input_PhG3,
+                self.input_PhG4,
             ],
             outputs=prediction,
         )
