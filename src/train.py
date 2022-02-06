@@ -1,11 +1,18 @@
 from tensorflow import keras
 from model import fognet_ntiers
-from stack import stack_6tier
+from stack import stack_ntiers
 from target import labels, weight_bias
 from plot import plot_loss, plot_metrics, plot_cm, plot_roc, plot_prc
 import os
 import tempfile
-import EPOCHS, BATCH_SIZE
+from params import (
+    EPOCHS,
+    BATCH_SIZE,
+    STACK,
+    TARGET,
+    YEARS,
+    PROG,
+)
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -14,11 +21,18 @@ import matplotlib as mpl
 mpl.rcParams["figure.figsize"] = (12, 10)
 colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
 
-training_stack_shape, training_stack = stack_6tier()
-validating_stack_shape, validating_stack = stack_6tier()
-testing_stack_shape, testing_stack = stack_6tier()
+training_stack_shape, training_stack = stack_ntiers(STACK, YEARS["training"], PROG)
+training_labels = labels(TARGET, YEARS["training"], PROG)
 
-training_labels, validating_labels, testing_labels = labels()
+
+validating_stack_shape, validating_stack = stack_ntiers(
+    STACK, YEARS["validating"], PROG
+)
+validating_labels = labels(TARGET, YEARS["validating"], PROG)
+
+testing_stack_shape, testing_stack = stack_ntiers(STACK, YEARS["testing"], PROG)
+testing_labels = labels(TARGET, YEARS["testing"], PROG)
+
 
 class_weight, initial_bias = weight_bias()
 
@@ -80,7 +94,6 @@ weighted_history = weighted_model.fit(
     epochs=EPOCHS,
     callbacks=[early_stopping],
     validation_data=(validating_stack, validating_labels),
-    # The class weights go here
     class_weight=class_weight,
 )
 

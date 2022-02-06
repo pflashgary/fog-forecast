@@ -1,8 +1,18 @@
 import numpy as np
+import pandas as pd
+from tensorflow.keras.utils import to_categorical
 
 
-def labels():
-    pass
+def labels(target, years, prog):
+    frames = []
+    for year in years:
+        year_data = pd.read_csv(target.format(year=year, prog=prog), header=0, sep=",")
+        year_data = year_data["VIS_Cat"]
+        frames.append(year_data)
+    targets = pd.concat(frames)
+    categorical_targets = to_categorical(targets)
+
+    return categorical_targets
 
 
 def weight_bias(vis):

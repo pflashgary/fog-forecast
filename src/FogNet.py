@@ -1,8 +1,8 @@
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import concatenate
 from tensorflow.keras.layers import BatchNormalization, Dense, Dropout
-from tensorflow.keras.layers import Conv3D, MaxPooling3D, GlobalAveragePooling3D
-from tensorflow.keras.layers import ReLU, PReLU
+from tensorflow.keras.layers import Conv3D, GlobalAveragePooling3D
+from tensorflow.keras.layers import PReLU
 import FogNetConfig
 
 
@@ -12,38 +12,12 @@ class FogNet:
         self.num_classes = num_classes
         self.filters = filters
         self.dropout = dropout
-        self.input_nam_G1_shape = stack_shape["nam_G1_shape"]  # 32*32*81
-        self.input_nam_G2_shape = stack_shape["nam_G2_shape"]  # 32*32*72
-        self.input_nam_G3_shape = stack_shape["nam_G3_shape"]  # 32*32*81
-        self.input_nam_G4_shape = stack_shape["nam_G4_shape"]  # 32*32*45
-        self.input_nam_mixed_shape = stack_shape["nam_mixed_shape"]  # 32*32*9
-        self.input_mur_shape = stack_shape["mur_shape"]
+        self.input_nam_G1_shape = stack_shape["nam_G1_shape"]  # 32*32*c1
+        self.input_nam_G2_shape = stack_shape["nam_G2_shape"]  # 32*32*c2
+        self.input_nam_G3_shape = stack_shape["nam_G3_shape"]  # 32*32*c3
+        self.input_nam_G4_shape = stack_shape["nam_G4_shape"]  # 32*32*c4
 
     def BuildModel(self):
-        # Mur Data processing:
-        MUR_Conv1 = FogNetConfig.SSTDilationBlock(self.input_mur_shape)
-
-        MUR_Conv1 = MaxPooling3D(
-            pool_size=(2, 2, 1), strides=(3, 3, 1), name="MaxPooiling_MUR_Conv1"
-        )(MUR_Conv1)
-        MUR_Conv2 = Conv3D(
-            filters=32, kernel_size=(3, 3, 1), padding="same", name="MUR_Conv2"
-        )(MUR_Conv1)
-        MUR_Conv2 = BatchNormalization()(MUR_Conv2)
-        MUR_Conv2 = PReLU()(MUR_Conv2)
-        MUR_Conv2 = MaxPooling3D(pool_size=(2, 2, 1), name="MaxPooiling_MUR_Conv2")(
-            MUR_Conv2
-        )
-
-        MUR_Conv3 = Conv3D(
-            filters=1, kernel_size=(3, 3, 1), padding="same", name="MUR_Conv3"
-        )(MUR_Conv2)
-        MUR_Conv3 = BatchNormalization()(MUR_Conv3)
-        MUR_Conv3 = PReLU()(MUR_Conv3)
-        MUR_Conv3 = MaxPooling3D(pool_size=(2, 2, 1), name="MaxPooiling_MUR_Conv3")(
-            MUR_Conv3
-        )
-
         # ===================================Group1 ===========================================
         NAM_G1_Depth = self.input_nam_G1_shape.shape[3]
 
@@ -110,23 +84,6 @@ class FogNet:
         NAM_Spatial_G4 = FogNetConfig.SpatialDenseBlock(NAM_Spectral_A_G4)
         NAM_Spatial_A_G4 = FogNetConfig.SpatialAttentionBlock(NAM_Spatial_G4)
 
-        # ===================================Group5 ===========================================
-        MIXED = concatenate([self.input_nam_mixed_shape, MUR_Conv3], axis=3)
-
-        NAM_MIXED_Depth = MIXED.shape[3]
-        NAM_MIXED_Dense = FogNetConfig.SpectralDenseBlock(MIXED)
-        NAM_Spectral_A_MIXED = Conv3D(
-            filters=self.filters, kernel_size=(1, 1, NAM_MIXED_Depth)
-        )(NAM_MIXED_Dense)
-        NAM_Spectral_A_MIXED = BatchNormalization()(NAM_Spectral_A_MIXED)
-        NAM_Spectral_A_MIXED = PReLU()(NAM_Spectral_A_MIXED)
-        NAM_Spectral_A_MIXED = FogNetConfig.SpectralAttentionBlock(
-            NAM_Spectral_A_MIXED, self.filters
-        )
-
-        NAM_Spatial_MIXED = FogNetConfig.SpatialDenseBlock(NAM_Spectral_A_MIXED)
-        NAM_Spatial_A_MIXED = FogNetConfig.SpatialAttentionBlock(NAM_Spatial_MIXED)
-
         # ===================================Group1 ===========================================
         NAM_Spectral = concatenate(
             [
@@ -134,7 +91,6 @@ class FogNet:
                 NAM_Spectral_A_G2,
                 NAM_Spectral_A_G3,
                 NAM_Spectral_A_G4,
-                NAM_Spectral_A_MIXED,
             ],
             axis=3,
         )
@@ -150,7 +106,6 @@ class FogNet:
                 NAM_Spatial_A_G2,
                 NAM_Spatial_A_G3,
                 NAM_Spatial_A_G4,
-                NAM_Spatial_A_MIXED,
             ],
             axis=3,
         )
@@ -172,8 +127,6 @@ class FogNet:
                 self.input_nam_G2_shape,
                 self.input_nam_G3_shape,
                 self.input_nam_G4_shape,
-                self.input_nam_mixed_shape,
-                self.input_mur_shape,
             ],
             outputs=prediction,
         )
