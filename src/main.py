@@ -1,15 +1,22 @@
 from tensorflow import keras
 from model import fognet_ntiers
-from stack import stack_ntiers
-from target import labels, weight_bias
+from fromtf import get_dataset
+from imbalance import weight_bias
 from plot import plot_loss, plot_metrics, plot_cm, plot_roc, plot_prc
 import os
 import tempfile
-from params import EPOCHS, BATCH_SIZE, STACK, TARGET, YEARS, PROG, PRIORITY_CLASS
+from params import (
+    EPOCHS,
+    BATCH_SIZE,
+    TRAINING_FILENAMES,
+    VALID_FILENAMES,
+    TEST_FILENAMES,
+)
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import logging
+import json
 
 logger = logging.getLogger("example_logger")
 
@@ -17,34 +24,26 @@ logger = logging.getLogger("example_logger")
 mpl.rcParams["figure.figsize"] = (12, 10)
 colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
 
-training_stack_input, training_stack = stack_ntiers(STACK, YEARS["training"], PROG)
-training_labels_cat, training_labels = labels(
-    TARGET, YEARS["training"], PROG, PRIORITY_CLASS
-)
+with open("params/stack_shape.json") as json_file:
+    stack_shape = json.load(json_file)
 
-validating_stack_input, validating_stack = stack_ntiers(
-    STACK, YEARS["validating"], PROG
-)
-validating_labels_cat, validating_labels = labels(
-    TARGET, YEARS["validating"], PROG, PRIORITY_CLASS
-)
+train_dataset = get_dataset(TRAINING_FILENAMES)
+valid_dataset = get_dataset(VALID_FILENAMES)
+test_dataset = get_dataset(TEST_FILENAMES)
 
-testing_stack_input, testing_stack = stack_ntiers(STACK, YEARS["testing"], PROG)
-testing_labels_cat, testing_labels = labels(
-    TARGET, YEARS["testing"], PROG, PRIORITY_CLASS
-)
 
-class_weight, initial_bias = weight_bias(training_labels.values.astype(np.int))
+class_weight, initial_bias = weight_bias(
+    training_labels.values.astype(np.int)
+)  # I have to think about this
 
 early_stopping = keras.callbacks.EarlyStopping(
     monitor="val_prc", verbose=1, patience=10, mode="max", restore_best_weights=True
 )
 
 
-model = fognet_ntiers(training_stack_input, output_bias=initial_bias)
+model = fognet_ntiers(stack_shape, output_bias=initial_bias)
 careful_bias_history = model.fit(
-    training_stack,
-    training_labels,
+    train_dataset,
     batch_size=BATCH_SIZE,
     epochs=EPOCHS,
     validation_data=(validating_stack, validating_labels),
@@ -58,16 +57,15 @@ plot_loss(careful_bias_history, "Careful Bias", 1)
 initial_weights = os.path.join(tempfile.mkdtemp(), "initial_weights")
 model.save_weights(initial_weights)
 
-model = fognet_ntiers(training_stack_shape)
+model = fognet_ntiers(stack_shape)
 model.load_weights(initial_weights)
 
 baseline_history = model.fit(
-    training_stack,
-    training_labels,
+    train_dataset,
     batch_size=BATCH_SIZE,
     epochs=EPOCHS,
     callbacks=[early_stopping],
-    validation_data=(validating_stack, validating_labels),
+    validation_data=valid_dataset,
 )
 
 plot_metrics(baseline_history)

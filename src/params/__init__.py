@@ -20,30 +20,48 @@ METRICS = [
     keras.metrics.AUC(name="prc", curve="PR"),  # precision-recall curve
 ]
 
-STACK = {
-    "PhG1": os.path.join(
-        "/home/pegah/ideas-packages/fog-forecast/Data/NAM/npz/{prog}HOURS/INPUT",
-        "NETCDF_NAM_CUBE" + "_{year}_" + "PhG1" + "_{prog}.npz",
-    ),
-    "PhG2": os.path.join(
-        "/home/pegah/ideas-packages/fog-forecast/Data/NAM/npz/{prog}HOURS/INPUT",
-        "NETCDF_NAM_CUBE" + "_{year}_" + "PhG2" + "_{prog}.npz",
-    ),
-    "PhG3": os.path.join(
-        "/home/pegah/ideas-packages/fog-forecast/Data/NAM/npz/{prog}HOURS/INPUT",
-        "NETCDF_NAM_CUBE" + "_{year}_" + "PhG3" + "_{prog}.npz",
-    ),
-    "PhG4": os.path.join(
-        "/home/pegah/ideas-packages/fog-forecast/Data/NAM/npz/{prog}HOURS/INPUT",
-        "NETCDF_NAM_CUBE" + "_{year}_" + "PhG4" + "_{prog}.npz",
-    ),
-}
+SRCFILES = [
+    {
+        "path": os.path.join(
+            "/home/pegah/ideas-packages/fog-forecast/Data/NAM/npz/{prog}HOURS/INPUT",
+            "NETCDF_NAM_CUBE" + "_{year}_" + "PhG1" + "_{prog}.npz",
+        ),
+        "name": "PhG1",
+    },
+    {
+        "path": os.path.join(
+            "/home/pegah/ideas-packages/fog-forecast/Data/NAM/npz/{prog}HOURS/INPUT",
+            "NETCDF_NAM_CUBE" + "_{year}_" + "PhG2" + "_{prog}.npz",
+        ),
+        "name": "PhG2",
+    },
+    {
+        "path": os.path.join(
+            "/home/pegah/ideas-packages/fog-forecast/Data/NAM/npz/{prog}HOURS/INPUT",
+            "NETCDF_NAM_CUBE" + "_{year}_" + "PhG3" + "_{prog}.npz",
+        ),
+        "name": "PhG3",
+    },
+    {
+        "path": os.path.join(
+            "/home/pegah/ideas-packages/fog-forecast/Data/NAM/npz/{prog}HOURS/INPUT",
+            "NETCDF_NAM_CUBE" + "_{year}_" + "PhG4" + "_{prog}.npz",
+        ),
+        "name": "PhG4",
+    },
+]
 
-TARGET = os.path.join(
+
+TARGETFILES = os.path.join(
     "/home/pegah/ideas-packages/fog-forecast/Data/NAM/npz/{prog}HOURS/TARGET",
     "target" + "{year}_" + "{prog}.csv",
 )
 
+
+DESTFILES = os.path.join(
+    "/home/pegah/ideas-packages/fog-forecast/Data//NAM/tfrecords",
+    "{choice}" + "_{prog}",
+)
 
 YEARS = {
     "training": ["2018"],
