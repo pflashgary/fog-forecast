@@ -4,3 +4,5 @@
 *.pyc
 Data/NAM/tfrecords/tfrecord-*
 Data/NAM/__pycache__/*.pyc
+Data/NAM/npz/*
+Data/NAM/tfrecords/*
